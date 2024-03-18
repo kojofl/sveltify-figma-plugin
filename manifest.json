@@ -1,0 +1,15 @@
+{
+  "name": "Sveltify",
+  "id": "1347200634028437661",
+  "api": "1.0.0",
+  "main": "dist/plugin.js",
+  "capabilities": [
+	  "inspect"
+  ],
+  "enableProposedApi": false,
+  "enablePrivatePluginApi": true,
+  "editorType": [
+	"dev"
+  ],
+  "ui": "src/ui.html"
+}

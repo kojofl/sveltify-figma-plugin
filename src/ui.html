@@ -1,0 +1,63 @@
+<h1>Sveltify</h1>
+<p>Selected Node:</p>
+<div id="selected"></div>
+<p>Figma-Api Token: <input id="token" required></p>
+<button id="submit">Create</button>
+
+<script>
+	var socket = null
+	var opened = false
+	const $selected = document.querySelector("#selected")
+	const $submit = document.querySelector("#submit")
+	const $token = document.querySelector("#token")
+
+	function connect() {
+		const { location } = window
+
+		const proto = location.protocol.startsWith('https') ? 'wss' : 'ws'
+		const wsUri = `${proto}://localhost:8081/ws`
+
+		socket = new WebSocket(wsUri);
+
+		socket.onopen = () => {
+			opened = true;
+		}
+
+		socket.onmessage = (e) => {
+			if (e.isTrusted) {
+				const msg = JSON.parse(e.data);
+				parent.postMessage({ pluginMessage: msg }, '*' )
+			}
+		}
+
+		socket.onclose = () => {
+			socket = null
+		}
+	}
+
+	try { 
+		connect()
+	} catch (e) {
+		$selected.innerHTML = e;
+	}
+
+	 
+	onmessage = (event) => {
+		const selected = document.getElementById("selected");
+		const message = event.data.pluginMessage;
+
+		switch(message.type) {
+			case "control":
+				selected.innerHTML = message.target;
+				break;
+			default: 
+				socket.send(JSON.stringify(message));
+		}
+	}
+
+	$submit.addEventListener('click', (_ev) => {
+		const token = $token.value;
+		parent.postMessage({ pluginMessage: { type: "init", token: token  } }, '*' )
+	})
+</script>
+
